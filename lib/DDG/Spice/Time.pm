@@ -13,6 +13,30 @@ triggers any => "time", "date", "day", "year", "month";
 
 my $capitals = LoadFile(share('capitals.yml'));
 
+my @timeZones = share('timeZones.txt')->slurp;
+
+my %timeZoneHash = ();
+
+foreach my $timeZone (@timeZones){
+    chomp($timeZone);
+    my @timeZone = split(/,/,$timeZone);
+    $timeZoneHash{$timeZone[0]} = \@timeZone;
+}
+
+sub getTimeZone {
+    my $input = shift;
+    foreach my $key (keys %timeZoneHash) {
+        if(exists $timeZoneHash{$key}) {
+            my @timeZoneValues = @{$timeZoneHash{$key}};
+            foreach my $value (@timeZoneValues) {
+                if($input eq $value) {
+                    return $key;
+                }
+            }
+        }
+    }
+}
+
 handle query_lc => sub {
     my $q = shift;
 
@@ -27,6 +51,10 @@ handle query_lc => sub {
     return ($tz_string, 'generic', $location) unless $q_loc;
 
     $q_loc =~ s/,//g;
+
+    if (my $timeZone = getTimeZone($q_loc)) {
+        return $timeZone;
+    }
 
     return unless (my $caps = $capitals->{$q_loc});
 

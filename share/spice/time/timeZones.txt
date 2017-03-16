@@ -1,0 +1,3 @@
+New York,est,et,edt,eastern time
+Seattle,pst,pt,pdt, pafiic time
+Chicago,ct,cst,cdt, central time
